@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from models.bookings import Bookings
 from models.act_inscription import Act_Inscription
-from config.database import collection_name
+from config.database import collection_name, activities_name, inscriptions_name
 from schema.schemas import list_serial
 from schema.schemas import list_act_inscription_serial
 from schema.schemas import list_activities_serial
@@ -40,25 +40,25 @@ async def delete_booking(id: str):
 # GET Request Method
 @router.get("/activities")
 async def get_all_activities():
-    activities = list_activities_serial(collection_name.find())
+    activities = list_activities_serial(activities_name.find())
     return {"data": activities}
 
 # Operaciones de inscripcion
 
 # GET Request Method
 @router.get("/activities/inscriptions")
-async def get_all_bookings():
-    inscriptions = list_act_inscription_serial(collection_name.find())
+async def get_all_inscriptions():
+    inscriptions = list_act_inscription_serial(inscriptions_name.find())
     return {"data": inscriptions}
 
 # POST Request Method
 @router.post("/activities/inscriptions/")
-async def post_booking(act_ins: Act_Inscription):
-    collection_name.insert_one(dict(act_ins))
+async def post_inscription(act_ins: Act_Inscription):
+    inscriptions_name.insert_one(dict(act_ins))
     return {"data": "Inscription Created Successfully"}
 
 # DELETE Request Method
 @router.delete("/activities/inscriptions/{id}")
-async def delete_booking(id: str):
-    collection_name.delete_one({"_id": ObjectId(id)}) # find_one_and_delete
+async def delete_inscription(id: str):
+    inscriptions_name.delete_one({"_id": ObjectId(id)}) # find_one_and_delete
     return {"data": "Inscription Deleted Successfully"}
