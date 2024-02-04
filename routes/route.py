@@ -1,9 +1,10 @@
 from fastapi import APIRouter
 from models.bookings import Bookings
 from models.act_inscription import Act_Inscription
-from models.activities import Activities
 from config.database import collection_name
 from schema.schemas import list_serial
+from schema.schemas import list_act_inscription_serial
+from schema.schemas import list_activities_serial
 from bson import ObjectId
 
 router = APIRouter()
@@ -39,7 +40,7 @@ async def delete_booking(id: str):
 # GET Request Method
 @router.get("/activities")
 async def get_all_activities():
-    activities = list_serial(collection_name.find())
+    activities = list_activities_serial(collection_name.find())
     return {"data": activities}
 
 # Operaciones de inscripcion
@@ -47,7 +48,7 @@ async def get_all_activities():
 # GET Request Method
 @router.get("/activities/inscriptions")
 async def get_all_bookings():
-    inscriptions = list_serial(collection_name.find())
+    inscriptions = list_act_inscription_serial(collection_name.find())
     return {"data": inscriptions}
 
 # POST Request Method
