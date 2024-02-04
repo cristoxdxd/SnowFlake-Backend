@@ -1,12 +1,20 @@
 def individual_serial(booking) -> dict:
     return {
-        "id": str(booking["_id"]),
         "name": booking["name"],
+        "summary": booking["summary"],
         "description": booking["description"],
-        "price": booking["price"],
         "capacity": booking["capacity"],
-        "image": booking["image"],
+        "price": booking["price"],
+        "room_type": booking["room_type"],
+        "bed_type": booking["bed_type"],
+        "minimum_nights": booking["minimum_nights"],
+        "maximum_nights": booking["maximum_nights"],
+        "bedrooms": booking["bedrooms"],
+        "beds": booking["beds"],
+        "bathrooms": booking["bathrooms"],
+        "images": booking["images"],
         "availability": booking["availability"],
+        "reviews": booking["reviews"]
     }
 
 def list_serial(bookings) -> list:

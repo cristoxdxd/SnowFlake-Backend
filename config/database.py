@@ -8,4 +8,4 @@ client = MongoClient(os.getenv("MONGODB_URI"))
 
 db = client.booking_db
 
-collection_name = db["bookings_collection"]
+collection_name = db["booking_collection"]

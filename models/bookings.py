@@ -3,13 +3,21 @@ from datetime import date
 from typing import List
 
 class Bookings(BaseModel):
-    id: str
     name: str
+    summary: str
     description: str
-    price: float
     capacity: int
-    image: str
+    price: float
+    room_type: str
+    bed_type: str
+    minimum_nights: int
+    maximum_nights: int
+    bedrooms: int
+    beds: int
+    bathrooms: int
+    images: List[str]
     availability: List[str]
+    reviews: List[str]
 
     @classmethod
     def parse_availability(cls, value):
