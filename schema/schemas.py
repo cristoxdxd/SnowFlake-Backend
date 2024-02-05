@@ -20,29 +20,14 @@ def individual_serial(booking) -> dict:
 def list_serial(bookings) -> list:
     return [individual_serial(booking) for booking in bookings]
 
-# Función para serializar una instancia de Act_Inscription
-def act_inscription_serial(inscription) -> dict:
-    return {
-        "id_ins": inscription["id_ins"],
-        "usr_name": inscription["usr_name"],
-        "price": inscription["price"],
-    }
-
-# Función para serializar una lista de instancias de Act_Inscription
-def list_act_inscription_serial(inscriptions) -> list:
-    return [act_inscription_serial(inscription) for inscription in inscriptions]
-
 def activities_serial(activity) -> dict:
     return {
         "id_act": activity["id_act"],
         "name": activity["name"],
         "description": activity["description"],
         "price": activity["price"],
-        "outside_activity": activity["outside_activity"],
         "duration": activity["duration"],
-        "images": activity["images"],
-        "availability": [str(date) for date in activity["availability"]],  # Convertir datetime a cadena
-        "reviews": activity["reviews"],
+        "image": activity["image"],
     }
 
 # Función para serializar una lista de instancias de Activities

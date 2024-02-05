@@ -10,4 +10,3 @@ db = client.booking_db
 
 collection_name = db["booking_collection"]
 activities_name = db["activities_collection"]
-inscriptions_name = db["inscriptions_collection"]
