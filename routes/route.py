@@ -1,10 +1,14 @@
 from fastapi import APIRouter
 from models.bookings import Bookings
-from config.database import collection_name
+from models.activities import Activities
+from config.database import collection_name, activities_name
 from schema.schemas import list_serial
+from schema.schemas import list_activities_serial
 from bson import ObjectId
 
 router = APIRouter()
+
+#Operaciones para los Libros
 
 # GET Request Method
 @router.get("/")
@@ -29,3 +33,16 @@ async def put_booking(id: str, booking: Bookings):
 async def delete_booking(id: str):
     collection_name.delete_one({"_id": ObjectId(id)}) # find_one_and_delete
     return {"data": "Booking Deleted Successfully"}
+
+#Operaciones para las actividades
+
+# GET Request Method
+@router.get("/activities")
+async def get_all_activities():
+    activities = list_activities_serial(activities_name.find())
+    return {"data": activities}
+
+@router.post("/activities/")
+async def post_activity(activity: Activities):
+    activities_name.insert_one(dict(activity))
+    return {"data": "Booking Created Successfully"}

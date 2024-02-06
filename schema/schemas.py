@@ -19,3 +19,16 @@ def individual_serial(booking) -> dict:
 
 def list_serial(bookings) -> list:
     return [individual_serial(booking) for booking in bookings]
+
+def activities_serial(activity) -> dict:
+    return {
+        "name": activity["name"],
+        "description": activity["description"],
+        "price": activity["price"],
+        "duration": activity["duration"],
+        "image": activity["image"],
+    }
+
+# Función para serializar una lista de instancias de Activities
+def list_activities_serial(activities_list) -> list:
+    return [activities_serial(activity) for activity in activities_list]
