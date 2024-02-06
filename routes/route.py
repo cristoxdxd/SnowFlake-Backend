@@ -43,6 +43,6 @@ async def get_all_activities():
     return {"data": activities}
 
 @router.post("/activities/")
-async def post_booking(activity: Activities):
+async def post_activity(activity: Activities):
     activities_name.insert_one(dict(activity))
     return {"data": "Booking Created Successfully"}

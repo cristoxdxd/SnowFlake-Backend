@@ -22,7 +22,6 @@ def list_serial(bookings) -> list:
 
 def activities_serial(activity) -> dict:
     return {
-        "id_act": activity["id_act"],
         "name": activity["name"],
         "description": activity["description"],
         "price": activity["price"],
