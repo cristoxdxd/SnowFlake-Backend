@@ -1,8 +1,11 @@
 from pydantic import BaseModel
 from datetime import date
 from typing import List
+from .user import User
+
 
 class Bookings(BaseModel):
+    id: int
     name: str
     summary: str
     description: str
@@ -15,10 +18,10 @@ class Bookings(BaseModel):
     bedrooms: int
     beds: int
     bathrooms: int
-    images: List[str]
-    availability: List[str]
+    images: [str]
+    availability: List[User]  # Cambio a una lista de usuarios
     reviews: List[str]
 
     @classmethod
     def parse_availability(cls, value):
-        return [date.fromisoformat(date_str) for date_str in value]
+        return [User(email=user['email']) for user in value]
