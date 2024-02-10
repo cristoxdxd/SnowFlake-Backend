@@ -8,7 +8,7 @@ from bson import ObjectId
 
 router = APIRouter()
 
-#Operaciones para los Libros
+#Operaciones para las Reservas
 
 # GET Request Method
 @router.get("/")

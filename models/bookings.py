@@ -18,7 +18,7 @@ class Bookings(BaseModel):
     bedrooms: int
     beds: int
     bathrooms: int
-    images: [str]
+    images: List[str]
     availability: List[User]  # Cambio a una lista de usuarios
     reviews: List[str]
 
