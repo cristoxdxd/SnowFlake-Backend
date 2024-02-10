@@ -1,5 +1,6 @@
 def individual_serial(booking) -> dict:
     return {
+        "_id": str(booking["_id"]),
         "name": booking["name"],
         "summary": booking["summary"],
         "description": booking["description"],
@@ -20,7 +21,7 @@ def individual_serial(booking) -> dict:
 def list_serial(bookings) -> list:
     return [individual_serial(booking) for booking in bookings]
 
-def activities_serial(activity) -> dict:
+def activity_serial(activity) -> dict:
     return {
         "name": activity["name"],
         "description": activity["description"],
@@ -31,4 +32,18 @@ def activities_serial(activity) -> dict:
 
 # Función para serializar una lista de instancias de Activities
 def list_activities_serial(activities_list) -> list:
-    return [activities_serial(activity) for activity in activities_list]
+    return [activity_serial(activity) for activity in activities_list]
+
+def availability_serial(availability) -> dict:
+    if "booking_id" in availability:
+        return {
+            "booking_id": availability["booking_id"],
+            "start_date": availability["start_date"],
+            "end_date": availability["end_date"],
+            "user": availability["user"],
+        }
+    else:
+        return {}
+
+def list_availability_serial(availability_list) -> list:
+    return [availability_serial(availability) for availability in availability_list]
