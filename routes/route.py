@@ -3,7 +3,7 @@ from models.booking_info import Bookings
 from models.booking_users import Availability
 from models.activities import Activities
 from config.database import collection_name, activities_name, availability_name
-from schema.schemas import list_serial, list_availability_serial, list_activities_serial
+from schema.schemas import individual_serial, list_serial, list_availability_serial, list_activities_serial
 from bson import ObjectId
 
 router = APIRouter()
@@ -15,6 +15,12 @@ router = APIRouter()
 async def get_all_bookings():
     bookings = list_serial(collection_name.find())
     return {"data": bookings}
+
+# GET Request Method
+@router.get("/{id}")
+async def get_booking(id: str):
+    booking = individual_serial(collection_name.find_one({"_id": ObjectId(id)}))
+    return {"data": booking}
 
 # POST Request Method
 @router.post("/")
@@ -37,9 +43,15 @@ async def delete_booking(id: str):
 # Operaciones para las reservas
 
 # GET Request Method
-@router.get("/availability")
+@router.get("/availability/")
 async def get_booking_availability():
     availability = list_availability_serial(availability_name.find())
+    return {"data": availability}
+
+# GET Request Method
+@router.get("/availability/{user}")
+async def get_booking_availability_id(user: str):
+    availability = list_availability_serial(availability_name.find({"user": user}))
     return {"data": availability}
 
 # POST Request Method
@@ -63,7 +75,7 @@ async def delete_booking_availability(id: str):
 # Operaciones para las actividades
 
 # GET Request Method
-@router.get("/activities")
+@router.get("/activities/")
 async def get_all_activities():
     activities = list_activities_serial(activities_name.find())
     return {"data": activities}
