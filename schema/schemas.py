@@ -23,6 +23,7 @@ def list_serial(bookings) -> list:
 
 def activity_serial(activity) -> dict:
     return {
+        "_id": str(activity["_id"]),
         "name": activity["name"],
         "description": activity["description"],
         "price": activity["price"],
@@ -30,20 +31,17 @@ def activity_serial(activity) -> dict:
         "image": activity["image"],
     }
 
-# Función para serializar una lista de instancias de Activities
-def list_activities_serial(activities_list) -> list:
-    return [activity_serial(activity) for activity in activities_list]
+def list_activities_serial(activities) -> list:
+    return [activity_serial(activity) for activity in activities]
 
 def availability_serial(availability) -> dict:
-    if "booking_id" in availability:
-        return {
-            "booking_id": availability["booking_id"],
-            "start_date": availability["start_date"],
-            "end_date": availability["end_date"],
-            "user": availability["user"],
-        }
-    else:
-        return {}
+    return {
+        "_id": str(availability["_id"]),
+        "booking_id": availability["booking_id"],
+        "start_date": availability["start_date"],
+        "end_date": availability["end_date"],
+        "user": availability["user"],
+    }
 
-def list_availability_serial(availability_list) -> list:
-    return [availability_serial(availability) for availability in availability_list]
+def list_availability_serial(all_availability) -> list:
+    return [availability_serial(availability) for availability in all_availability]

@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from datetime import date
-from typing import List
+from typing import List, Optional
 from .booking_users import Availability
 
 class Bookings(BaseModel):
@@ -17,10 +17,12 @@ class Bookings(BaseModel):
     beds: int
     bathrooms: int
     images: List[str]
-    availability: List[Availability]
-    reviews: List[str]
+    availability: Optional[List[Availability]]
+    reviews: Optional[List[str]]
 
     @classmethod
     def parse_availability(cls, value):
+        if value is None:
+            return []
         return [(date.fromisoformat(date_str["start_date"]), date.fromisoformat(date_str["end_date"]))
                 for date_str in value]

@@ -2,8 +2,8 @@ from fastapi import APIRouter
 from models.booking_info import Bookings
 from models.booking_users import Availability
 from models.activities import Activities
-from config.database import collection_name, activities_name
-from schema.schemas import list_serial, list_availability_serial, list_activities_serial
+from config.database import collection_name, activities_name, availability_name
+from schema.schemas import individual_serial, list_serial, list_availability_serial, list_activities_serial
 from bson import ObjectId
 
 router = APIRouter()
@@ -15,6 +15,12 @@ router = APIRouter()
 async def get_all_bookings():
     bookings = list_serial(collection_name.find())
     return {"data": bookings}
+
+# GET Request Method
+@router.get("/{id}")
+async def get_booking(id: str):
+    booking = individual_serial(collection_name.find_one({"_id": ObjectId(id)}))
+    return {"data": booking}
 
 # POST Request Method
 @router.post("/")
@@ -37,38 +43,42 @@ async def delete_booking(id: str):
 # Operaciones para las reservas
 
 # GET Request Method
-@router.get("/availability")
+@router.get("/availability/")
 async def get_booking_availability():
-    availability = list_availability_serial(collection_name.find())
-    # bookings = list_serial(collection_name.find())
-    # availability = [Availability.parse_availability(booking["availability"]) for booking in bookings]
+    availability = list_availability_serial(availability_name.find())
+    return {"data": availability}
+
+# GET Request Method
+@router.get("/availability/{user}")
+async def get_booking_availability_id(user: str):
+    availability = list_availability_serial(availability_name.find({"user": user}))
     return {"data": availability}
 
 # POST Request Method
 @router.post("/availability/")
 async def post_booking_availability(availability: Availability):
-    collection_name.insert_one({"_id": availability.booking_id}, {"$push": {"availability": dict(availability)}})
+    availability_name.insert_one(dict(availability))
     return {"data": "Booking Availability Created Successfully"}
 
 # PUT Request Method
 @router.put("/availability/{id}")
 async def put_booking_availability(id: str, availability: Availability):
-    collection_name.update_one({"_id": ObjectId(id)}, {"$push": {"availability": dict(availability)}})
+    availability_name.update_one({"_id": ObjectId(id)}, {"$push": {"availability": dict(availability)}})
     return {"data": "Booking Availability Updated Successfully"}
 
 # DELETE Request Method
 @router.delete("/availability/{id}")
 async def delete_booking_availability(id: str):
-    collection_name.update_one({"_id": ObjectId(id)}, {"$pop": {"availability": 1}})
+    availability_name.update_one({"_id": ObjectId(id)}, {"$pop": {"availability": 1}})
     return {"data": "Booking Availability Deleted Successfully"}
 
 # Operaciones para las actividades
 
 # GET Request Method
-@router.get("/activities")
+@router.get("/activities/")
 async def get_all_activities():
     activities = list_activities_serial(activities_name.find())
-    return {activities}
+    return {"data": activities}
 
 @router.post("/activities/")
 async def post_activity(activity: Activities):
