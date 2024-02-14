@@ -63,13 +63,13 @@ async def post_booking_availability(availability: Availability):
 # PUT Request Method
 @router.put("/availability/{id}")
 async def put_booking_availability(id: str, availability: Availability):
-    availability_name.update_one({"_id": ObjectId(id)}, {"$push": {"availability": dict(availability)}})
+    availability_name.update_one({"_id": ObjectId(id)}, {"$set": dict(availability)})
     return {"data": "Booking Availability Updated Successfully"}
 
 # DELETE Request Method
 @router.delete("/availability/{id}")
 async def delete_booking_availability(id: str):
-    availability_name.update_one({"_id": ObjectId(id)}, {"$pop": {"availability": 1}})
+    availability_name.delete_one({"_id": ObjectId(id)})
     return {"data": "Booking Availability Deleted Successfully"}
 
 # Operaciones para las actividades
