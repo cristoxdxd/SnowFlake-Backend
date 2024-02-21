@@ -2,9 +2,15 @@ from fastapi import APIRouter
 from models.booking_info import Bookings
 from models.booking_users import Availability
 from models.activities import Activities
+from models.email import Email
 from config.database import collection_name, activities_name, availability_name
 from schema.schemas import individual_serial, list_serial, list_availability_serial, list_activities_serial
 from bson import ObjectId
+import yagmail
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 router = APIRouter()
 
@@ -84,3 +90,15 @@ async def get_all_activities():
 async def post_activity(activity: Activities):
     activities_name.insert_one(dict(activity))
     return {"data": "Booking Created Successfully"}
+
+# Operación para enviar correo de confirmación
+
+# POST Request Method
+@router.post("/send-email/")
+async def send_email(email: Email, booking: Bookings, availability: Availability):
+    yag = yagmail.SMTP(os.getenv("EMAIL_ADDRESS"), os.getenv("EMAIL_PASSWORD"))
+    to = email.email
+    subject = 'Confirmación de reservación en Hotel Copo de Nieve'
+    body = '¡Gracias por reservar con nosotros! Su reservación ha sido confirmada. ¡Esperamos verlo pronto! \n\nDetalles de la reservación: \n\nNombre: ' + booking.name + '\nFecha de llegada: ' + booking.arrival_date + '\nFecha de salida: ' + booking.departure_date + '\nNúmero de habitaciones: ' + booking.rooms
+    yag.send(to, subject, body)
+    return {"message": "Confirmation email sent"}
