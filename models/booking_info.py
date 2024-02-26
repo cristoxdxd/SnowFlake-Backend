@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 from datetime import date
 from typing import List, Optional
-from .booking_users import Availability
 
 class Bookings(BaseModel):
     name: str
@@ -17,7 +16,7 @@ class Bookings(BaseModel):
     beds: int
     bathrooms: int
     images: List[str]
-    availability: Optional[List[Availability]]
+    availability: Optional[List[str]]
     reviews: Optional[List[str]]
 
     @classmethod
