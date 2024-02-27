@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Body, HTTPException, Request
 from models.booking_info import Bookings
 from models.booking_users import Availability
 from models.activities import Activities
@@ -95,16 +95,20 @@ async def post_activity(activity: Activities):
     return {"data": "Booking Created Successfully"}
 
 # Operación para enviar correo de confirmación
+yag = yagmail.SMTP(os.getenv("EMAIL_ADDRESS"), os.getenv("EMAIL_PASSWORD"))
 
 # POST Request Method
-@router.post("/send-email/")
-async def send_email(email: Email, booking: Bookings, availability: Availability):
-    yag = yagmail.SMTP(os.getenv("EMAIL_ADDRESS"), os.getenv("EMAIL_PASSWORD"))
-    to = email.email
-    subject = 'Confirmación de reservación en Hotel Copo de Nieve'
-    body = '¡Gracias por reservar con nosotros! Su reservación ha sido confirmada. ¡Esperamos verlo pronto! \n\nDetalles de la reservación: \n\nNombre: ' + booking.name + '\nFecha de llegada: ' + booking.arrival_date + '\nFecha de salida: ' + booking.departure_date + '\nNúmero de habitaciones: ' + booking.rooms
-    yag.send(to, subject, body)
-    return {"message": "Confirmation email sent"}
+@router.post("/enviar-correo")
+async def enviar_correo(correo: Email = Body(...)):
+    try:
+        # Enviar correo
+        yag.send(correo.email, correo.asunto, correo.contenido)
+
+        return {"success": True}
+    except Exception as e:
+        print(f"Error al enviar correo: {e}")
+        return {"success": False}
+
 
 # # Operaciones para paypal
 from fastapi.responses import JSONResponse
