@@ -1,4 +1,5 @@
-from fastapi import APIRouter
+from typing import List
+from fastapi import APIRouter, HTTPException, Request
 from models.booking_info import Bookings
 from models.booking_users import Availability
 from models.activities import Activities
@@ -9,6 +10,8 @@ from bson import ObjectId
 import yagmail
 from dotenv import load_dotenv
 import os
+
+
 
 load_dotenv()
 
@@ -102,3 +105,111 @@ async def send_email(email: Email, booking: Bookings, availability: Availability
     body = '¡Gracias por reservar con nosotros! Su reservación ha sido confirmada. ¡Esperamos verlo pronto! \n\nDetalles de la reservación: \n\nNombre: ' + booking.name + '\nFecha de llegada: ' + booking.arrival_date + '\nFecha de salida: ' + booking.departure_date + '\nNúmero de habitaciones: ' + booking.rooms
     yag.send(to, subject, body)
     return {"message": "Confirmation email sent"}
+
+# # Operaciones para paypal
+from fastapi.responses import JSONResponse
+import httpx
+
+PAYPAL_CLIENT_ID = os.getenv("PAYPAL_CLIENT_ID")
+PAYPAL_CLIENT_SECRET =  os.getenv("PAYPAL_CLIENT_SECRET")
+
+base = "https://api-m.sandbox.paypal.com"
+
+async def generate_access_token():
+    try:
+        if not PAYPAL_CLIENT_ID or not PAYPAL_CLIENT_SECRET:
+            raise HTTPException(status_code=500, detail="MISSING_API_CREDENTIALS")
+        
+        auth = f"{PAYPAL_CLIENT_ID}:{PAYPAL_CLIENT_SECRET}"
+        auth_base64 = base64.b64encode(auth.encode("utf-8")).decode("utf-8")
+
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                f"{base}/v1/oauth2/token",
+                data={"grant_type": "client_credentials"},
+                headers={"Authorization": f"Basic {auth_base64}"},
+            )
+
+            response.raise_for_status()
+            data = response.json()
+            return data["access_token"]
+    except Exception as e:
+        print("Failed to generate Access Token:", e)
+        raise HTTPException(status_code=500, detail="Failed to generate Access Token")
+import base64
+
+async def create_order(cart):
+    try:
+        print("Shopping cart information passed from the frontend create_order() callback:", cart)
+
+        access_token = await generate_access_token()
+        url = f"{base}/v2/checkout/orders"
+
+        price = cart.get('cart', [])[0].get('price')
+        print ("Price: ", price)
+
+        payload = {
+            "intent": "CAPTURE",
+            "purchase_units": [
+                {
+                    "amount": {
+                        "currency_code": "USD",
+                        "value": price,
+                    },
+                },
+            ],
+        }
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                url,
+                json=payload,
+                headers={"Content-Type": "application/json", "Authorization": f"Bearer {access_token}"},
+            )
+
+            response.raise_for_status()
+            return await handle_response(response)
+    except Exception as e:
+        print("Failed to create order:", e)
+        raise HTTPException(status_code=500, detail="Failed to create order")
+
+async def capture_order(order_id):
+    try:
+        access_token = await generate_access_token()
+        url = f"{base}/v2/checkout/orders/{order_id}/capture"
+
+        async with httpx.AsyncClient() as client:
+            response = await client.post(
+                url,
+                headers={"Content-Type": "application/json", "Authorization": f"Bearer {access_token}"},
+            )
+
+            response.raise_for_status()
+            return await handle_response(response)
+    except Exception as e:
+        print("Failed to capture order:", e)
+        raise HTTPException(status_code=500, detail="Failed to capture order")
+
+async def handle_response(response):
+    try:
+        json_response = response.json()
+        return JSONResponse(content=json_response, status_code=response.status_code)
+    except Exception as e:
+        error_message = await response.text()
+        raise HTTPException(status_code=response.status_code, detail=error_message)
+
+@router.post("/orders")
+async def create_order_api(request: Request):
+    try:
+        cart = await request.json()
+        return await create_order(cart)
+    except HTTPException as e:
+        return e
+
+@router.post("/orders/{order_id}/capture")
+async def capture_order_api(order_id: str):
+    try:
+        return await capture_order(order_id)
+    except HTTPException as e:
+        return e
