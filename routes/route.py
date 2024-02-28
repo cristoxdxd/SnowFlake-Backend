@@ -3,14 +3,13 @@ from fastapi import APIRouter, Body, HTTPException, Request
 from models.booking_info import Bookings
 from models.booking_users import Availability
 from models.activities import Activities
-from models.email import Email
+from models.email import EmailData
 from config.database import collection_name, activities_name, availability_name
 from schema.schemas import individual_serial, list_serial, list_availability_serial, list_activities_serial
 from bson import ObjectId
 import yagmail
 from dotenv import load_dotenv
 import os
-
 
 
 load_dotenv()
@@ -95,19 +94,24 @@ async def post_activity(activity: Activities):
     return {"data": "Booking Created Successfully"}
 
 # Operación para enviar correo de confirmación
-yag = yagmail.SMTP(os.getenv("EMAIL_ADDRESS"), os.getenv("EMAIL_PASSWORD"))
 
-# POST Request Method
-@router.post("/enviar-correo")
-async def enviar_correo(correo: Email = Body(...)):
+@router.post("/send-email/")
+async def send_email(email_data: EmailData):
     try:
-        # Enviar correo
-        yag.send(correo.email, correo.asunto, correo.contenido)
-
-        return {"success": True}
+        # Configura yagmail con tu cuenta de correo electrónico y credenciales
+        yag = yagmail.SMTP(os.getenv("EMAIL_ADDRESS"), os.getenv("EMAIL_PASSWORD"))
+        
+        # Envía el correo electrónico
+        yag.send(
+            to=email_data.email,
+            subject=email_data.subject,
+            contents=email_data.body
+        )
+        
+        return {"message": "Correo electrónico enviado correctamente"}
     except Exception as e:
-        print(f"Error al enviar correo: {e}")
-        return {"success": False}
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 
 # # Operaciones para paypal

@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 
-class Email(BaseModel):
+
+class EmailData(BaseModel):
     email: str
-    asunto: str
-    contenido:str
+    subject: str
+    body: str
