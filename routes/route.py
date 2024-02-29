@@ -1,16 +1,15 @@
 from typing import List
-from fastapi import APIRouter, HTTPException, Request
+from fastapi import APIRouter, Body, HTTPException, Request
 from models.booking_info import Bookings
 from models.booking_users import Availability
 from models.activities import Activities
-from models.email import Email
+from models.email import EmailData
 from config.database import collection_name, activities_name, availability_name
 from schema.schemas import individual_serial, list_serial, list_availability_serial, list_activities_serial
 from bson import ObjectId
 import yagmail
 from dotenv import load_dotenv
 import os
-
 
 
 load_dotenv()
@@ -96,15 +95,24 @@ async def post_activity(activity: Activities):
 
 # Operación para enviar correo de confirmación
 
-# POST Request Method
 @router.post("/send-email/")
-async def send_email(email: Email, booking: Bookings, availability: Availability):
-    yag = yagmail.SMTP(os.getenv("EMAIL_ADDRESS"), os.getenv("EMAIL_PASSWORD"))
-    to = email.email
-    subject = 'Confirmación de reservación en Hotel Copo de Nieve'
-    body = '¡Gracias por reservar con nosotros! Su reservación ha sido confirmada. ¡Esperamos verlo pronto! \n\nDetalles de la reservación: \n\nNombre: ' + booking.name + '\nFecha de llegada: ' + booking.arrival_date + '\nFecha de salida: ' + booking.departure_date + '\nNúmero de habitaciones: ' + booking.rooms
-    yag.send(to, subject, body)
-    return {"message": "Confirmation email sent"}
+async def send_email(email_data: EmailData):
+    try:
+        # Configura yagmail con tu cuenta de correo electrónico y credenciales
+        yag = yagmail.SMTP(os.getenv("EMAIL_ADDRESS"), os.getenv("EMAIL_PASSWORD"))
+        
+        # Envía el correo electrónico
+        yag.send(
+            to=email_data.email,
+            subject=email_data.subject,
+            contents=email_data.body
+        )
+        
+        return {"message": "Correo electrónico enviado correctamente"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 
 # # Operaciones para paypal
 from fastapi.responses import JSONResponse
