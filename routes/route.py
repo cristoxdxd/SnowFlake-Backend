@@ -1,16 +1,18 @@
-from typing import List
+import datetime
 from fastapi import APIRouter, Body, HTTPException, Request
 from models.booking_info import Bookings
 from models.booking_users import Availability
 from models.activities import Activities
 from models.email import EmailData
-from config.database import collection_name, activities_name, availability_name
-from schema.schemas import individual_serial, list_serial, list_availability_serial, list_activities_serial
+from config.database import collection_name, activities_name, availability_name, codes_reservation
+from schema.schemas import individual_serial, list_serial, list_availability_serial, list_activities_serial, code_serial
 from bson import ObjectId
 import yagmail
 from dotenv import load_dotenv
 import os
-
+from jinja2 import Template
+import random
+import string
 
 load_dotenv()
 
@@ -94,23 +96,54 @@ async def post_activity(activity: Activities):
     return {"data": "Booking Created Successfully"}
 
 # Operación para enviar correo de confirmación
+# GET Request Method
+@router.get("/code/{id}")
+async def get_code(id: str):
+    code_reservation = code_serial(codes_reservation.find_one({"_id": ObjectId(id)}))
+    return {"data": code_reservation}
+
+# Cargar la plantilla de correo electrónico
+with open("./templates/email_template.html", "r") as file:
+    template_content = file.read()
+email_template = Template(template_content)
+# Configura yagmail con tu cuenta de correo electrónico y credenciales
+yag = yagmail.SMTP(os.getenv("EMAIL_ADDRESS"), os.getenv("EMAIL_PASSWORD"))
+
+def generate_reservation_code(length=8):
+    # Generar un código exclusivo de la reserva
+    characters = string.ascii_letters + string.digits
+    code = ''.join(random.choice(characters) for _ in range(length))
+    return code
+
+fecha_actual = datetime.datetime.now()
+fecha_formateada = fecha_actual.strftime("%Y-%m-%d %H:%M:%S")
 
 @router.post("/send-email/")
 async def send_email(email_data: EmailData):
     try:
-        # Configura yagmail con tu cuenta de correo electrónico y credenciales
-        yag = yagmail.SMTP(os.getenv("EMAIL_ADDRESS"), os.getenv("EMAIL_PASSWORD"))
+        # Generar un código exclusivo de la reserva
+        reservation_code = generate_reservation_code()
+        # Insertar la instancia en la colección de MongoDB
+        insert_result = codes_reservation.insert_one({"code": reservation_code})
         
+        # Verificar si la inserción fue exitosa
+        if insert_result.inserted_id:
+            print("Código de reserva insertado correctamente:", reservation_code)
+        else:
+            print("Error al insertar el código de reserva en la base de datos")
+        # Renderizar la plantilla con datos dinámicos, incluyendo el código exclusivo
+        email_content = email_template.render(username=email_data.username, amount=email_data.amount, reservation_code=reservation_code, fecha=fecha_formateada )
         # Envía el correo electrónico
         yag.send(
             to=email_data.email,
             subject=email_data.subject,
-            contents=email_data.body
+            contents=email_content
         )
         
         return {"message": "Correo electrónico enviado correctamente"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 
 

@@ -46,3 +46,8 @@ def availability_serial(availability) -> dict:
 def list_availability_serial(all_availability) -> list:
     return [availability_serial(availability) for availability in all_availability]
 
+def code_serial(code_reservation) -> dict:
+    return {
+        "code": str(code_reservation["code"])
+    }
+

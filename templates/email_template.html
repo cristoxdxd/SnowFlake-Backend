@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmación de reserva</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #007bff;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Confirmacion de reserva</h1>
+        <p>Hola {{ username }},</p>
+        <p>Gracias por tu reserva. Aqui tienes los detalles:</p>
+        <ul>
+            <li>Nombre del hotel: Hotel Copo de Nieve</li>
+            <li>Fecha de reserva: {{ fecha }}</li>
+            <li>Precio: $ {{ amount }}</li>
+            <li>Codigo de reserva: {{ reservation_code }}</li>
+        </ul>
+        <p>Por favor, presenta este código al momento de tu llegada al hotel para verificar tu reserva.</p>
+        <p>Esperamos que tengas una excelente estancia!</p>
+    </div>
+</body>
+</html>
