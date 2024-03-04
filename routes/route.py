@@ -121,18 +121,8 @@ fecha_formateada = fecha_actual.strftime("%Y-%m-%d %H:%M:%S")
 @router.post("/send-email/")
 async def send_email(email_data: EmailData):
     try:
-        # Generar un código exclusivo de la reserva
-        reservation_code = generate_reservation_code()
-        # Insertar la instancia en la colección de MongoDB
-        insert_result = codes_reservation.insert_one({"code": reservation_code})
-        
-        # Verificar si la inserción fue exitosa
-        if insert_result.inserted_id:
-            print("Código de reserva insertado correctamente:", reservation_code)
-        else:
-            print("Error al insertar el código de reserva en la base de datos")
         # Renderizar la plantilla con datos dinámicos, incluyendo el código exclusivo
-        email_content = email_template.render(username=email_data.username, amount=email_data.amount, reservation_code=reservation_code, fecha=fecha_formateada )
+        email_content = email_template.render(amount=email_data.amount, reservation_code=email_data.booking_id, fecha=fecha_formateada )
         # Envía el correo electrónico
         yag.send(
             to=email_data.email,
