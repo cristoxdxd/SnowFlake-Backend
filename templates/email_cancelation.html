@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cancelacion de reserva</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Hotel Copo de Nieve</h1>
+        <h2>Cancelacion de reserva</h2>
+        <p>Lamentamos tu eleccion,</p>
+        <p>Gracias por haber considerado nuestro hotel. Aqui tienes los detalles de tu cancelacion:</p>
+        <ul>
+            <li>Fecha de cancelacion: {{ fecha }}</li>
+            <li>Saldo a favor: $ {{ amount }}</li>
+            <li>Codigo de reserva: {{ reservation_code }}</li>
+        </ul>
+        <p>El saldo a favor te sera acreditado en los proximo 7 dias habiles</p>
+        <p>Esperamos que tengas un excelente dia!</p>
+    </div>
+</body>
+</html>
