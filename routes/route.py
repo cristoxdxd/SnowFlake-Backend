@@ -115,12 +115,13 @@ def generate_reservation_code(length=8):
     code = ''.join(random.choice(characters) for _ in range(length))
     return code
 
-fecha_actual = datetime.datetime.now()
-fecha_formateada = fecha_actual.strftime("%Y-%m-%d %H:%M:%S")
+
 
 @router.post("/send-email/")
 async def send_email(email_data: EmailData):
     try:
+        fecha_actual = datetime.datetime.now()
+        fecha_formateada = fecha_actual.strftime("%Y-%m-%d %H:%M:%S")
         # Renderizar la plantilla con datos dinámicos, incluyendo el código exclusivo
         email_content = email_template.render(amount=email_data.amount, reservation_code=email_data.booking_id, fecha=fecha_formateada )
         # Envía el correo electrónico
@@ -128,6 +129,28 @@ async def send_email(email_data: EmailData):
             to=email_data.email,
             subject=email_data.subject,
             contents=email_content
+        )
+        
+        return {"message": "Correo electrónico enviado correctamente"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+with open("./templates/email_cancelation.html", "r") as file:
+    template_content2 = file.read()
+email_cancelation = Template(template_content2)
+
+@router.post("/send-email/cancelation/")
+async def send_email(email_data: EmailData):
+    try:
+        fecha_actual = datetime.datetime.now()
+        fecha_formateada = fecha_actual.strftime("%Y-%m-%d %H:%M:%S")
+        # Renderizar la plantilla con datos dinámicos, incluyendo el código exclusivo
+        email_content2 = email_cancelation.render(amount=email_data.amount, reservation_code=email_data.booking_id, fecha=fecha_formateada )
+        # Envía el correo electrónico
+        yag.send(
+            to=email_data.email,
+            subject=email_data.subject,
+            contents=email_content2
         )
         
         return {"message": "Correo electrónico enviado correctamente"}
